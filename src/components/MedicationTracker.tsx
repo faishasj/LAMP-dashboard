@@ -65,9 +65,6 @@ export default function MedicationTracker({ onComplete, ...props }) {
     }); 
   }
 
-  const openDialog = () => {
-    setOpen(true)
-  }
   const openDialog2 = () => {
     const data = JSON.parse(JSON.stringify(medications));
     setOpen2(true)
@@ -81,11 +78,9 @@ export default function MedicationTracker({ onComplete, ...props }) {
 
   const saveMedication = (index:number) => {  
     const mymedications = [];
-    console.log('index : ' + index, medications);
-    if(localStorage.getItem('mymedications') !== null) {
+     if(localStorage.getItem('mymedications') !== null) {
       const r = JSON.parse(localStorage.getItem('mymedications'));
       Object.keys(r).forEach(key => {
-        console.log(String(index) == key);
         if(String(index) == key) {  console.log(key);
           mymedications.push(medications);
         } else {
@@ -93,7 +88,6 @@ export default function MedicationTracker({ onComplete, ...props }) {
         }
       });
     }
-    console.log(mymedications);
     if(edit === -1) {
       mymedications.push(medications);
     }
@@ -120,6 +114,7 @@ export default function MedicationTracker({ onComplete, ...props }) {
 
   const addMedication = () => {
     setEdit(-1)
+    setMedications([]);     
     setOpen(true)
   }
   const getDateTimeformatted = (date : any) => {
@@ -127,13 +122,8 @@ export default function MedicationTracker({ onComplete, ...props }) {
       year: 'numeric', 
       month: 'short', 
       day: 'numeric' 
-    };
-    const timeOptions = {
-      hour12 : true,
-      hour:  "2-digit",
-      minute: "2-digit",
-    };
-    return new Date(date).toLocaleDateString('en-US', DATE_OPTIONS) + ' '+ new Date(date).toLocaleTimeString("en-US", timeOptions);      
+    };   
+    return new Date(date).toLocaleDateString('en-US', DATE_OPTIONS);      
   }
 
   const getMedications = () => { 
@@ -161,22 +151,16 @@ export default function MedicationTracker({ onComplete, ...props }) {
     });  }
     return cards;
   }
-  const [selectedDays, setSelectedDays] = useState([1, 2, 15])
-  const [selectedDate, handleDateChange] = useState(new Date())
-  const [selectedDateEnd, handleDateChangeEnd] = useState(new Date())
-  const [medication, setmedication] = useState(null)
 
- const currentMedications = edit >= 0 ? JSON.parse(JSON.stringify(medications)) : []; 
+  const currentMedications = JSON.parse(JSON.stringify(medications)); 
   return (
     <Container maxWidth="sm">
       <Box className="medication-calendar" display="flex" border={2} borderColor="grey.300" borderRadius={8} bgcolor="#fff" p={5} my={5}>
-        <DatePicker
-       
+        <DatePicker       
           autoOk
           orientation="landscape"
           variant="static"
-          openTo="date"
-          
+          openTo="date"          
           value={date}
           onChange={changeDate}
           renderDay={(date, selectedDate, isInCurrentMonth, dayComponent) => {
@@ -224,11 +208,11 @@ export default function MedicationTracker({ onComplete, ...props }) {
           <Switch color="primary" id="reminder" name="reminder" onChange={updateField} checked={currentMedications.reminder ? currentMedications.reminder: ''}> </Switch>
           <div></div>
           <TextField
-          onChange={updateField}
+              onChange={updateField}
               id="start_date"
               label="Start date"
               placeholder="Start Date"
-              type="datetime-local"
+              type="date"
               defaultValue={currentMedications.start_date ? currentMedications.start_date: ''}
               InputLabelProps={{
                 shrink: true,
@@ -236,11 +220,11 @@ export default function MedicationTracker({ onComplete, ...props }) {
             />          
           <div></div>
           <TextField
-          onChange={updateField}
+              onChange={updateField}
               id="end_date"
               label="End date"
               placeholder="End Date"
-              type="datetime-local"
+              type="date"
               defaultValue={currentMedications.end_date ? currentMedications.end_date: ''}
               InputLabelProps={{
                 shrink: true,
