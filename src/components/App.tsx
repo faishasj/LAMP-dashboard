@@ -19,6 +19,7 @@ import Root from "./Root"
 import Researcher from "./Researcher"
 import Participant from "./Participant"
 import NavigationLayout from "./NavigationLayout"
+import MedicationTracker from './MedicationTracker';
 
 /* TODO: /researcher/:researcher_id/activity/:activity_id -> editor ui */
 /* TODO: /participant/:participant_id/activity/:activity_id -> activity ui */
@@ -313,7 +314,7 @@ function AppRouter({ ...props }) {
           )
         }
       />
-
+      <Route exact={true} path="/participant/:id/medications" component={MedicationTracker} />
       <Route
         exact
         path="/participant/:id"

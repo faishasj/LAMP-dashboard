@@ -1,0 +1,6 @@
+.medication-calendar .MuiIconButton-root{
+padding: 0 !important;
+}
+.MuiPickersDay-day{margin: 2px !important;}
+
+.medication-calendar .makeStyles-highlight-1 .MuiIconButton-label{color: #fff;}
