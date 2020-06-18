@@ -16,9 +16,8 @@ import {
   Badge
 } from "@material-ui/core"
 import { DatePicker } from "@material-ui/pickers"
-import { makeStyles, createStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 
-import { IconButton, withStyles } from "@material-ui/core";
 import '../css/calendar.css';
 
 interface MedicationItem {
@@ -53,10 +52,10 @@ export default function MedicationTracker({ onComplete, ...props }) {
       year: 'numeric', 
       month: 'numeric', 
       day: 'numeric' 
-    };
-   
+    };   
     return new Date(date).toLocaleDateString('en-US', DATE_OPTIONS);      
   }
+
   let initialData = [];
   if(localStorage.getItem('mymedications') !== null) {
     const mymedications = JSON.parse(localStorage.getItem('mymedications'));
@@ -78,7 +77,8 @@ export default function MedicationTracker({ onComplete, ...props }) {
 
   const saveMedication = (index:number) => {  
     const mymedications = [];
-     if(localStorage.getItem('mymedications') !== null) {
+   
+    if(localStorage.getItem('mymedications') !== null) {
       const r = JSON.parse(localStorage.getItem('mymedications'));
       Object.keys(r).forEach(key => {
         if(String(index) == key) {  console.log(key);
@@ -94,6 +94,7 @@ export default function MedicationTracker({ onComplete, ...props }) {
     localStorage.setItem('mymedications', JSON.stringify(mymedications));
     closeDialog();
   }
+
   const updateField = (e:any) => {
     const data = JSON.parse(JSON.stringify(medications));
     setMedications({
@@ -117,14 +118,6 @@ export default function MedicationTracker({ onComplete, ...props }) {
     setMedications([]);     
     setOpen(true)
   }
-  const getDateTimeformatted = (date : any) => {
-    const DATE_OPTIONS = {
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    };   
-    return new Date(date).toLocaleDateString('en-US', DATE_OPTIONS);      
-  }
 
   const getMedications = () => { 
     let cards = [];
@@ -133,9 +126,9 @@ export default function MedicationTracker({ onComplete, ...props }) {
      
       Object.keys(mymedications).forEach(key => {
         if(typeof mymedications[key].start_date !== 'undefined') {
-          const startDate = getDateTimeformatted(mymedications[key].start_date);
-          const endDate = getDateTimeformatted(mymedications[key].end_date);
-          cards.push(<Card style={{ margin: 16 }}>
+          const startDate = dateFormated(mymedications[key].start_date);
+          const endDate = dateFormated(mymedications[key].end_date);
+          cards.push(<Card style={{ margin: 16 }} key={key}>
                       <CardContent>
                         <Typography align="left">{mymedications[key].medication_name} {mymedications[key].dose}</Typography>
                         <Typography align="left" variant="body2"><Icon fontSize="small">access_time</Icon>
@@ -166,12 +159,8 @@ export default function MedicationTracker({ onComplete, ...props }) {
           renderDay={(date, selectedDate, isInCurrentMonth, dayComponent) => {
             const isSelected = isInCurrentMonth && initialData.includes(dateFormated(date))
             const view = isSelected ? <div className={classes.highlight}>
-            <IconButton >
-              <span> {dayComponent} </span>
-            </IconButton>
-          </div> :  
-              <span> {dayComponent} </span>
-           ;
+                                        <span> {dayComponent} </span>           
+                                    </div> :  <span> {dayComponent} </span>;
             return (
               view
             )         
@@ -199,45 +188,77 @@ export default function MedicationTracker({ onComplete, ...props }) {
         <Container>
           <DialogTitle>Add Medication </DialogTitle>
           <DialogContent> </DialogContent>
-          <form>
-          <TextField fullWidth={true} autoFocus margin="normal" variant="outlined" label="Medication Name" 
-             onChange={updateField} name="medication_name" id="medication_name" value={currentMedications.medication_name ? currentMedications.medication_name: ''} />
-          <div></div>
-          <TextField autoFocus margin="normal" variant="outlined" label="Dose" name="dose" id="dose"  onChange={updateField} value={currentMedications.dose ? currentMedications.dose: ''}/>
-          <Typography>Set reminder? </Typography>
-          <Switch color="primary" id="reminder" name="reminder" onChange={updateField} checked={currentMedications.reminder ? currentMedications.reminder: ''}> </Switch>
-          <div></div>
-          <TextField
-              onChange={updateField}
-              id="start_date"
-              label="Start date"
-              placeholder="Start Date"
-              type="date"
-              defaultValue={currentMedications.start_date ? currentMedications.start_date: ''}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />          
-          <div></div>
-          <TextField
-              onChange={updateField}
-              id="end_date"
-              label="End date"
-              placeholder="End Date"
-              type="date"
-              defaultValue={currentMedications.end_date ? currentMedications.end_date: ''}
-              InputLabelProps={{
-                shrink: true,
-              }}
-            />        
-          <DialogActions>
-            <Button onClick={closeDialog} startIcon={<Icon>delete</Icon>}>
-              Cancel
-            </Button>
-            <Button onClick={currentMedications.medication_name ? () => saveMedication(edit) : () => saveMedication(edit)} startIcon={<Icon>save</Icon>}>
-              Save
-            </Button>
-          </DialogActions>
+          <form>         
+            <TextField 
+              fullWidth={true} 
+              autoFocus 
+              margin="normal" 
+              variant="outlined" 
+              label="Medication Name" 
+              onChange={updateField} 
+              name="medication_name" 
+              id="medication_name" 
+              error={(currentMedications.medication_name && currentMedications.medication_name == '') || !currentMedications.medication_name ? true : false}
+              helperText={(currentMedications.medication_name && currentMedications.medication_name == '')  || !currentMedications.medication_name ? "Medication name is required." : '' }
+              value={currentMedications.medication_name ? currentMedications.medication_name: ''} 
+            />
+            <TextField 
+              autoFocus 
+              margin="normal" 
+              variant="outlined" 
+              label="Dose" 
+              name="dose" 
+              id="dose"  
+              error={(currentMedications.dose && currentMedications.dose == '') || !currentMedications.dose ? true : false}
+              helperText={(currentMedications.dose && currentMedications.dose == '')  || !currentMedications.dose ? "Medication dose is required." : '' }
+              onChange={updateField} 
+              value={currentMedications.dose ? currentMedications.dose: ''}
+            />
+            <Typography>Set reminder? </Typography>
+            <Switch 
+              color="primary"
+              id="reminder" 
+              name="reminder" 
+              onChange={updateField} 
+              checked={currentMedications.reminder ? currentMedications.reminder: false}
+            > </Switch>
+            <div></div>
+            <TextField
+                onChange={updateField}
+                id="start_date"
+                label="Start date"
+                placeholder="Start Date"
+                type="date"
+                error={(currentMedications.start_date && currentMedications.start_date == '') || !currentMedications.start_date ? true : false}
+                helperText={(currentMedications.start_date && currentMedications.start_date == '')  || !currentMedications.start_date ? "Start date is required." : '' }
+                defaultValue={currentMedications.start_date ? currentMedications.start_date: ''}
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />          
+            { currentMedications.start_date && 
+              <TextField
+                  onChange={updateField}
+                  id="end_date"
+                  label="End date"
+                  placeholder="End Date"
+                  type="date"
+                  error={(currentMedications.end_date && currentMedications.end_date == '') || !currentMedications.end_date ? true : false}
+                  helperText={(currentMedications.end_date && currentMedications.end_date == '')  || !currentMedications.end_date ? "End date is required." : '' }
+                  InputProps={{inputProps: { min: currentMedications.start_date } }}
+                  defaultValue={currentMedications.end_date ? currentMedications.end_date: ''}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />  }
+            <DialogActions>
+              <Button onClick={closeDialog} startIcon={<Icon>delete</Icon>}>
+                Cancel
+              </Button>
+              <Button onClick={currentMedications.medication_name ? () => saveMedication(edit) : () => saveMedication(edit)} startIcon={<Icon>save</Icon>}>
+                Save
+              </Button>
+            </DialogActions>
           </form>
         </Container>
       </Dialog>
